@@ -24,7 +24,7 @@
     </Node>
     <!-- Cook the game project -->
     <Node Name="CookGame" Requires="CompileGame">
-      <Cook Project="$(GameProjectPath)\$(GameTarget).uproject" Platform="$(TargetPlatform)" Configuration="$(BuildConfig)" CookFlavor="$(TargetPlatformFlavor)" IterativeCooking="$(BuildMode) == 'Iterative'"/>
+      <Cook Project="$(GameProjectPath)\$(GameTarget).uproject" Platform="$(TargetPlatform)"/>
     </Node>
     <!-- Package the game project -->
     <Node Name="PackageGame" Requires="CookGame">
