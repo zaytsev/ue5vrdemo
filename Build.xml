@@ -8,15 +8,15 @@
   <Option Name="BuildMode" DefaultValue="Iterative" Description="Build mode: Iterative or Full"/>
   <!-- Define build configurations -->
   <Option Name="BuildConfig" DefaultValue="Development" Description="Build configuration: Development, Debug, or Shipping"/>
-  <Option Name="TargetPlatform" DefaultValue="Android"/>
-  <Option Name="TargetPlatformFlavor" DefaultValue="ASTC"/>
+  <Option Name="TargetPlatform" DefaultValue="Android" Description="Target platform for the build"/>
+  <Option Name="TargetPlatformFlavor" DefaultValue="ASTC" Description="Target platform flavor for the build"/>
   <!-- Define build targets -->
   <Property Name="GameTarget" Value="vr3"/>
   <!-- Define build steps -->
   <Agent Name="BuildAgent" Type="Compile">
     <!-- Clean the output directory for Nightly build -->
     <Node Name="CleanOutputDirectory" If="$(BuildMode) == 'Full'">
-      <Delete Files="$(OutputPath)\**" Recursive="true"/>
+      <Delete Files="$(OutputPath)\**"/>
     </Node>
     <!-- Compile the game project -->
     <Node Name="CompileGame" Requires="CleanOutputDirectory">
@@ -24,7 +24,7 @@
     </Node>
     <!-- Cook the game project -->
     <Node Name="CookGame" Requires="CompileGame">
-      <Cook Project="$(GameProjectPath)\$(GameTarget).uproject" Platform="$(TargetPlatform)" Configuration="$(BuildConfig)" CookAll="true" CookFlavor="$(TargetPlatformFlavor)" IterativeCooking="$(BuildMode) == 'Iterative'"/>
+      <Cook Project="$(GameProjectPath)\$(GameTarget).uproject" Platform="$(TargetPlatform)" Configuration="$(BuildConfig)" CookFlavor="$(TargetPlatformFlavor)" IterativeCooking="$(BuildMode) == 'Iterative'"/>
     </Node>
     <!-- Package the game project -->
     <Node Name="PackageGame" Requires="CookGame">
