@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BuildGraph xmlns="http://www.epicgames.com/BuildGraph" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.epicgames.com/BuildGraph Schema.xsd">
+  <!-- Define paths using environment variables -->
+  <Option Name="UE5SourcePath" DefaultValue="$(Env:UE5_SOURCE_PATH)" Description="Path to the custom Unreal Engine 5 source directory"/>
+  <Option Name="GameProjectPath" DefaultValue="$(Env:PROJECT_SOURCE_PATH)" Description="Path to the game project directory"/>
+  <Option Name="OutputPath" DefaultValue="$(Env:OUTPUT_PATH)" Description="Path to the output directory for the build"/>
+  <!-- Define build scenarios -->
+  <Option Name="BuildMode" DefaultValue="Iterative" Description="Build mode: Iterative or Full"/>
+  <!-- Define build configurations -->
+  <Option Name="BuildConfig" DefaultValue="Development" Description="Build configuration: Development, Debug, or Shipping"/>
+  <Option Name="TargetPlatform" DefaultValue="Android"/>
+  <Option Name="TargetPlatformFlavor" DefaultValue="ASTC"/>
+  <!-- Define build targets -->
+  <Property Name="GameTarget" Value="vr3"/>
+  <!-- Define build steps -->
+  <Agent Name="BuildAgent" Type="Compile">
+    <!-- Clean the output directory for Nightly build -->
+    <Node Name="CleanOutputDirectory" If="$(BuildMode) == 'Full'">
+      <Delete Files="$(OutputPath)\**" Recursive="true"/>
+    </Node>
+    <!-- Compile the game project -->
+    <Node Name="CompileGame" Requires="CleanOutputDirectory">
+      <Compile Target="$(GameTarget)" Platform="$(TargetPlatform)" Configuration="$(BuildConfig)" ProjectPath="$(GameProjectPath)\$(GameTarget).uproject"/>
+    </Node>
+    <!-- Cook the game project -->
+    <Node Name="CookGame" Requires="CompileGame">
+      <Cook Project="$(GameProjectPath)\$(GameTarget).uproject" Platform="$(TargetPlatform)" Configuration="$(BuildConfig)" CookAll="true" CookFlavor="$(TargetPlatformFlavor)" IterativeCooking="$(BuildMode) == 'Iterative'"/>
+    </Node>
+    <!-- Package the game project -->
+    <Node Name="PackageGame" Requires="CookGame">
+      <Package Project="$(GameProjectPath)\$(GameTarget).uproject" Platform="$(TargetPlatform)" Configuration="$(BuildConfig)" Archive="$(OutputPath)"/>
+    </Node>
+  </Agent>
+  <!-- Define the build sequence -->
+  <Aggregate Name="BuildCookPackage" Requires="PackageGame"/>
+</BuildGraph>
